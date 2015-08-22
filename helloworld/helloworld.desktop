@@ -1,0 +1,8 @@
+[Desktop Entry]
+Name=helloworld
+Exec=qmlscene $@ helloworld/Main.qml
+Icon=helloworld/helloworld.png
+Terminal=false
+Type=Application
+X-Ubuntu-Touch=true
+
