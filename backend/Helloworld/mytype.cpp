@@ -4,6 +4,7 @@
 #include <QUrl>
 #include <QStandardPaths>
 #include <QDir>
+#include <QImage>
 
 QString base64_encode(QString string);
 QString base64_decode(QString string);
@@ -66,7 +67,7 @@ void Impress::readMsg()
 
         if(line == "\n") continue;
 
-        qDebug() << respStr;
+        qDebug() << line;
 
         if (line.indexOf("LO_SERVER_VALIDATING_PIN") >= 0)
         {
@@ -108,38 +109,49 @@ void Impress::readMsg()
             line = QString::fromUtf8(buff);
             int pageNum = line.toInt();
 
-            QFile file("preview_of_page_"+QString(pageNum)+".png");
-            file.open(QIODevice::WriteOnly);
-            QDataStream out(&file);
+            QString fn = QString("preview_of_page_%1.png").arg(pageNum);
+            fn = getFilePath(fn);
+            //QFile file(getFilePath(a));
+            //file.open(QIODevice::WriteOnly);
+            //QDataStream out(&file);
 
-            QString png_base64;
+            QByteArray png_base64;
             do
             {
-                tcpSocket->readLine(buff, 1024);
+                int cnt = tcpSocket->readLine(buff, 1024);
                 line = QString::fromUtf8(buff);
-                png_base64 += line;
+                //png_base64 += line;
+                png_base64.append(buff, cnt);
             }while(line.indexOf('\n')<0);
 
-            out << base64_decode(png_base64);
-            file.close();
+            png_base64 = png_base64.left(png_base64.length()-1);
+
+            qDebug() << png_base64;
+
+            QImage image;
+            image.loadFromData(QByteArray::fromBase64(png_base64), "PNG");
+            qDebug() << fn;
+            image.save(fn, "PNG");
+
+            //file.close();
         }
         else if (line.indexOf("slide_notes") >= 0)
         {
             tcpSocket->readLine(buff, 1024);
             line = QString::fromUtf8(buff);
-            qDebug() << line;
-            int pageNum = line.toInt();
-            qDebug() << pageNum;
-
-            QFile file(getFilePath("notes_of_page_"+QString(pageNum)+".txt"));
+            qint32 pageNum = line.remove('\n').toInt();
+            QString a = QString("notes_of_page_%1.txt").arg(pageNum);
+            QFile file(getFilePath(a));
             file.open(QIODevice::WriteOnly);
-            QDataStream out(&file);
+            //QDataStream out(&file);
 
             do
             {
-                tcpSocket->readLine(buff, 1024);
+                int cnt = tcpSocket->readLine(buff, 1024);
                 line = QString::fromUtf8(buff);
-                out << line;
+                qDebug() << line;
+                //out << line;
+                file.write(buff, cnt);
             }while(line.indexOf('\n')<0);
             file.close();
         }
