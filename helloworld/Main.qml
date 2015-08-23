@@ -50,6 +50,16 @@ MainView {
             }
 
             Button {
+                objectName: "connect"
+                width: parent.width
+                text: i18n.tr("connect")
+
+                onClicked: {
+                    impress.connect_server();
+                }
+            }
+
+            Button {
                 objectName: "button"
                 width: parent.width
 
@@ -57,6 +67,7 @@ MainView {
 
                 onClicked: {
                     impress.helloWorld = i18n.tr("..from Cpp Backend")
+                    impress.next_page();
                 }
             }
         }
