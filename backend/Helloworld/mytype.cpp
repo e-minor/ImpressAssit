@@ -79,6 +79,8 @@ void Impress::readMsg()
             emit paired();
 
             start();
+
+            qDebug() << getNote(0);
         }
         else if (line.indexOf("LO_SERVER_INFO") >= 0)
         {
@@ -219,5 +221,17 @@ QString Impress::getNotesPath(int pageNum)
 QString Impress::getPreviewPath(int pageNum)
 {
     return getFilePath(QString("preview_of_page_%1.png").arg(pageNum));
+}
+
+QString Impress::getNote(int pageNum)
+{
+    QString path = getNotesPath(pageNum);
+    QFile file(path);
+    file.open(QIODevice::ReadOnly);
+    QTextStream out(&file);
+    QString content;
+    out >> content;
+    file.close();
+    return content;
 }
 

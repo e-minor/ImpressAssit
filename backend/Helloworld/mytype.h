@@ -37,6 +37,8 @@ public slots:
     void goto_page(int page);
     QString getNotesPath(int pageNum);
     QString getPreviewPath(int pageNum);
+    QString getNote(int pageNum);
+
 
 
 private slots:
