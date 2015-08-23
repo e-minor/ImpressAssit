@@ -6,22 +6,6 @@
 #include <QDir>
 #include <QImage>
 
-QString base64_encode(QString string);
-QString base64_decode(QString string);
-
-QString base64_encode(QString string){
-    QByteArray ba;
-    ba.append(string);
-    return ba.toBase64();
-}
-
-QString base64_decode(QString string){
-    QByteArray ba;
-    ba.append(string);
-    return QByteArray::fromBase64(ba);
-}
-
-
 
 
 Impress::Impress(QObject *parent) :
@@ -32,12 +16,7 @@ Impress::Impress(QObject *parent) :
     curPage(0),
     m_message("")
 {
-    tcpSocket = new QTcpSocket(this);
-    tcpSocket->connectToHost(m_hostAddr, 1599);
-    connect(tcpSocket, SIGNAL(connected()),this, SLOT(emitConnectedState()));
-    connect(tcpSocket, SIGNAL(readyRead()), this, SLOT(readMsg()));
-
-    qDebug() << "construct function done! ";
+    connect_server();
 }
 
 Impress::~Impress() {
@@ -80,6 +59,7 @@ void Impress::readMsg()
 
             start();
 
+            qDebug() << "print note 0";
             qDebug() << getNote(0);
         }
         else if (line.indexOf("LO_SERVER_INFO") >= 0)
@@ -161,8 +141,19 @@ void Impress::sendMsg(QString msg)
     tcpSocket->write(array);
 }
 
+void Impress::connect_server()
+{
+    tcpSocket = new QTcpSocket(this);
+    tcpSocket->connectToHost(m_hostAddr, 1599);
+    connect(tcpSocket, SIGNAL(connected()),this, SLOT(emitConnectedState()));
+    connect(tcpSocket, SIGNAL(readyRead()), this, SLOT(readMsg()));
+
+    qDebug() << "connect request issued! ";
+}
+
 void Impress::pair()
 {
+
     sendMsg("LO_SERVER_CLIENT_PAIR\nubuntu Phone\n"+m_PIN+"\n\n");
 }
 
@@ -228,9 +219,10 @@ QString Impress::getNote(int pageNum)
     QString path = getNotesPath(pageNum);
     QFile file(path);
     file.open(QIODevice::ReadOnly);
-    QTextStream out(&file);
+    //QTextStream out(&file);
     QString content;
-    out >> content;
+    content = QString(file.readAll());
+    //out >> content;
     file.close();
     return content;
 }

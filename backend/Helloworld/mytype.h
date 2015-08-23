@@ -29,6 +29,7 @@ signals:
     void reportPageNumberGot(qint32 total, qint32 cur);
 
 public slots:
+    void connect_server();
     void pair();
     void start();
     void stop();
