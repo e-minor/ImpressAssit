@@ -4,17 +4,19 @@
 #include <QObject>
 #include <QTcpSocket>
 
-enum{ST_READ_STARTED_OR_NOT, ST_xxx};
+enum{ST_IDLE, ST_READ_STARTED_OR_NOT, ST_xxx};
 
-class MyType : public QObject
+class Impress : public QObject
 {
     Q_OBJECT
     Q_PROPERTY( QString helloWorld READ helloWorld WRITE setHelloWorld NOTIFY helloWorldChanged )
     Q_PROPERTY(QString PIN READ PIN WRITE setPIN NOTIFY PINChanged)
+    Q_PROPERTY(qint32 totalPages READ getTotalPages)
+    Q_PROPERTY(qint32 curPage READ getCurPage)
 
 public:
-    explicit MyType(QObject *parent = 0);
-    ~MyType();
+    explicit Impress(QObject *parent = 0);
+    ~Impress();
 
 signals:
     void helloWorldChanged();
@@ -22,9 +24,17 @@ signals:
     void connectedToImpressServer();
     void shouldSetPINinImpress(QString PIN);
     void paired();
+    void reportStartupStatus(bool started);
+    void reportPageNumberGot(qint32 total, qint32 cur);
 
 public slots:
     void pair();
+    void start();
+    void stop();
+    void next_page();
+    void prev_page();
+    void goto_page(int page);
+
 
 private slots:
     void emitConnectedState();
@@ -38,7 +48,12 @@ protected:
     QString PIN() { return m_PIN; }
     void setPIN(QString p) { m_PIN = p; emit PINChanged(); }
 
+    qint32 getTotalPages() { return totalPages;}
+    qint32 getCurPage() {return curPage;}
+
     void sendMsg(QString msg);
+
+    QString getFilePath(const QString filename) const;
 
     QString m_message;
     QString m_PIN;
@@ -48,7 +63,8 @@ protected:
     quint16 blockSize;
 
     int status;
-    bool
+    int totalPages;
+    int curPage;
 };
 
 #endif // MYTYPE_H

@@ -27,11 +27,11 @@ MainView {
     Page {
         title: i18n.tr("helloworld")
 
-        MyType {
-            id: myType
+        Impress {
+            id: impress
 
             Component.onCompleted: {
-                myType.helloWorld = i18n.tr("Hello world..")
+                impress.helloWorld = i18n.tr("Hello world..")
             }
         }
 
@@ -46,7 +46,7 @@ MainView {
                 id: label
                 objectName: "label"
 
-                text: myType.helloWorld
+                text: impress.helloWorld
             }
 
             Button {
@@ -56,7 +56,7 @@ MainView {
                 text: i18n.tr("Tap me!")
 
                 onClicked: {
-                    myType.helloWorld = i18n.tr("..from Cpp Backend")
+                    impress.helloWorld = i18n.tr("..from Cpp Backend")
                 }
             }
         }
