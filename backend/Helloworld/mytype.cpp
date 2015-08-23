@@ -26,13 +26,14 @@ QString base64_decode(QString string){
 
 Impress::Impress(QObject *parent) :
     QObject(parent),
+    m_hostAddr("127.0.0.1"),
     m_PIN("1111"),
     totalPages(1),
     curPage(0),
     m_message("")
 {
     tcpSocket = new QTcpSocket(this);
-    tcpSocket->connectToHost("127.0.0.1", 1599);
+    tcpSocket->connectToHost(m_hostAddr, 1599);
     connect(tcpSocket, SIGNAL(connected()),this, SLOT(emitConnectedState()));
     connect(tcpSocket, SIGNAL(readyRead()), this, SLOT(readMsg()));
 
@@ -111,9 +112,6 @@ void Impress::readMsg()
 
             QString fn = QString("preview_of_page_%1.png").arg(pageNum);
             fn = getFilePath(fn);
-            //QFile file(getFilePath(a));
-            //file.open(QIODevice::WriteOnly);
-            //QDataStream out(&file);
 
             QByteArray png_base64;
             do
@@ -126,14 +124,13 @@ void Impress::readMsg()
 
             png_base64 = png_base64.left(png_base64.length()-1);
 
-            qDebug() << png_base64;
+            //qDebug() << png_base64;
 
             QImage image;
             image.loadFromData(QByteArray::fromBase64(png_base64), "PNG");
             qDebug() << fn;
             image.save(fn, "PNG");
 
-            //file.close();
         }
         else if (line.indexOf("slide_notes") >= 0)
         {
@@ -143,14 +140,12 @@ void Impress::readMsg()
             QString a = QString("notes_of_page_%1.txt").arg(pageNum);
             QFile file(getFilePath(a));
             file.open(QIODevice::WriteOnly);
-            //QDataStream out(&file);
 
             do
             {
                 int cnt = tcpSocket->readLine(buff, 1024);
                 line = QString::fromUtf8(buff);
                 qDebug() << line;
-                //out << line;
                 file.write(buff, cnt);
             }while(line.indexOf('\n')<0);
             file.close();
@@ -215,3 +210,14 @@ QString Impress::getFilePath(const QString filename) const
 
     return path;
 }
+
+QString Impress::getNotesPath(int pageNum)
+{
+    return getFilePath(QString("notes_of_page_%1.txt").arg(pageNum));
+}
+
+QString Impress::getPreviewPath(int pageNum)
+{
+    return getFilePath(QString("preview_of_page_%1.png").arg(pageNum));
+}
+

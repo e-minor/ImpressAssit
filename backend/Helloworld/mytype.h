@@ -11,6 +11,7 @@ class Impress : public QObject
     Q_OBJECT
     Q_PROPERTY( QString helloWorld READ helloWorld WRITE setHelloWorld NOTIFY helloWorldChanged )
     Q_PROPERTY(QString PIN READ PIN WRITE setPIN NOTIFY PINChanged)
+    Q_PROPERTY(QString hostAddr READ hostAddr WRITE setHostAddr)
     Q_PROPERTY(qint32 totalPages READ getTotalPages)
     Q_PROPERTY(qint32 curPage READ getCurPage)
 
@@ -34,6 +35,8 @@ public slots:
     void next_page();
     void prev_page();
     void goto_page(int page);
+    QString getNotesPath(int pageNum);
+    QString getPreviewPath(int pageNum);
 
 
 private slots:
@@ -44,6 +47,9 @@ private slots:
 protected:
     QString helloWorld() { return m_message; }
     void setHelloWorld(QString msg) { m_message = msg; Q_EMIT helloWorldChanged(); }
+
+    QString hostAddr() { return m_hostAddr; }
+    void setHostAddr(QString addr) { m_hostAddr = addr; }
 
     QString PIN() { return m_PIN; }
     void setPIN(QString p) { m_PIN = p; emit PINChanged(); }
@@ -56,6 +62,7 @@ protected:
     QString getFilePath(const QString filename) const;
 
     QString m_message;
+    QString m_hostAddr;
     QString m_PIN;
 
     QTcpSocket *tcpSocket;
